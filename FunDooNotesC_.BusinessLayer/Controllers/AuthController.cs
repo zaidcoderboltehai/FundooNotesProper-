@@ -1,59 +1,91 @@
-﻿using FunDooNotesC_.ModelLayer;  // Model classes ko access karne ke liye
-using FunDooNotesC_.BusinessLogicLayer.Interfaces; // Interfaces ka use karne ke liye
-using FunDooNotesC_.DataLayer.Entities; // Database entities ko access karne ke liye
-using Microsoft.AspNetCore.Mvc; // API controller banane ke liye
-using System; // System-level functionalities ke liye
-using System.Threading.Tasks; // Asynchronous operations ke liye
+﻿using FunDooNotesC_.ModelLayer;
+using FunDooNotesC_.BusinessLogicLayer.Interfaces;
+using FunDooNotesC_.DataLayer.Entities;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
-namespace FunDooNotesC_.BusinessLayer.Controllers  // Controller ka namespace define kar raha hai
+namespace FunDooNotesC_.BusinessLogicLayer.Controllers
 {
-    [ApiController]  // Yeh controller ko API controller ke roop mein identify karta hai
-    [Route("api/[controller]")]  // API ka base route set karta hai (e.g., api/auth)
-    public class AuthController : ControllerBase  // AuthController bana rahe hain jo ControllerBase inherit karta hai
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AuthController : ControllerBase
     {
-        private readonly IUserService _userService;  // User ke authentication aur registration ke liye service ka reference
+        private readonly IUserService _userService;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(IUserService userService)  // Constructor jo IUserService ka instance leta hai (Dependency Injection)
+        public AuthController(IUserService userService, IConfiguration configuration)
         {
-            _userService = userService;  // Service ko private field mein assign kar rahe hain
+            _userService = userService;
+            _configuration = configuration;
         }
 
-        [HttpPost("register")]  // HTTP POST request ke liye API endpoint define kar raha hai (URL: api/auth/register)
-        public async Task<IActionResult> Register([FromBody] RegisterModel request) // Register method jo request body se data lega
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterModel request)
         {
-            if (!ModelState.IsValid)  // Agar input validation fail ho jaye toh bad request return karega
+            if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var user = new User  // Naya User object bana rahe hain
+                var user = new User
                 {
-                    FirstName = request.FirstName,  // First name assign kar rahe hain
-                    LastName = request.LastName,  // Last name assign kar rahe hain
-                    Email = request.Email  // Email assign kar rahe hain
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                    Email = request.Email
                 };
 
-                var registeredUser = await _userService.RegisterAsync(user, request.Password); // User ko register kar rahe hain
-                return Ok(new { message = "Registration successful", userId = registeredUser.Id }); // Success response return kar rahe hain
+                var registeredUser = await _userService.RegisterAsync(user, request.Password);
+                return Ok(new { message = "Registration successful", userId = registeredUser.Id });
             }
-            catch (Exception ex)  // Agar koi error aaye toh exception handle kar rahe hain
+            catch (Exception ex)
             {
-                return BadRequest(new { error = ex.Message }); // Error message return kar rahe hain
+                return BadRequest(new { error = ex.Message });
             }
         }
 
-        [HttpPost("login")]  // HTTP POST request ke liye API endpoint define kar raha hai (URL: api/auth/login)
-        public async Task<IActionResult> Login([FromBody] LoginModel request) // Login method jo request body se data lega
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginModel request)
         {
-            if (!ModelState.IsValid)  // Agar input validation fail ho jaye toh bad request return karega
+            if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var user = await _userService.LoginAsync(request.Email, request.Password); // User ko authenticate kar rahe hain
-            if (user == null)  // Agar user null return ho toh credentials galat hain
-                return Unauthorized(new { error = "Invalid credentials" }); // Unauthorized response return kar rahe hain
+            var user = await _userService.LoginAsync(request.Email, request.Password);
+            if (user == null)
+                return Unauthorized(new { error = "Invalid credentials" });
 
-            // JWT token generation logic can be added here.  // Yahan JWT token generate karne ka code likh sakte hain
-            return Ok(new { message = "Login successful", userId = user.Id }); // Success response return kar rahe hain
+            // JWT token generation
+            var jwtSettings = _configuration.GetSection("Jwt");
+            var secretKey = jwtSettings["SecretKey"];
+            var issuer = jwtSettings["Issuer"];
+            var audience = jwtSettings["Audience"];
+            var expiresInHours = Convert.ToDouble(jwtSettings["ExpiresInHours"]);
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(secretKey);
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Name, user.FirstName + " " + user.LastName)
+            };
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddHours(expiresInHours),
+                Issuer = issuer,
+                Audience = audience,
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
+
+            return Ok(new { message = "Login successful", token = tokenString });
         }
     }
 }
