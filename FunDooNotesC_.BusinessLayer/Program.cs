@@ -1,70 +1,94 @@
-using FunDooNotesC_.DataLayer; // Data layer ka use ho raha hai
-using FunDooNotesC_.RepoLayer; // Repository layer ko include kiya gaya hai
-using FunDooNotesC_.BusinessLogicLayer.Interfaces; // Business logic interfaces ko add kiya hai
-using FunDooNotesC_.BusinessLogicLayer.Services; // Business logic services ko include kiya hai
-using Microsoft.EntityFrameworkCore; // Entity Framework Core ka use ho raha hai (Database ke liye)
-using Microsoft.AspNetCore.Authentication.JwtBearer; // JWT Authentication ke liye library
-using Microsoft.IdentityModel.Tokens; // JWT Token Validation ke liye library
-using System.Text; // String encoding ke liye library
+using FunDooNotesC_.DataLayer;
+using FunDooNotesC_.RepoLayer;
+using FunDooNotesC_.BusinessLogicLayer.Interfaces;
+using FunDooNotesC_.BusinessLogicLayer.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.OpenApi.Models;
 
-var builder = WebApplication.CreateBuilder(args); // Ek web application build karne ka process start ho raha hai
+var builder = WebApplication.CreateBuilder(args);
 
-// Services ko container mein add kar rahe hain
-builder.Services.AddControllers(); // Controllers ko add kiya jisse API endpoints kaam karein
-builder.Services.AddEndpointsApiExplorer(); // API explorer ko enable kiya
-builder.Services.AddSwaggerGen(); // Swagger ko enable kiya API documentation ke liye
+// Services Configuration
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
 
-// JWT configuration setup
-var jwtSettings = builder.Configuration.GetSection("Jwt"); // Configuration file se JWT ke settings le rahe hain
-var secretKey = jwtSettings["SecretKey"]; // Secret key ko fetch kar rahe hain
+// Swagger Configuration with JWT
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "Token format: 'Bearer <your-token>'",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
 
-// Authentication setup kar rahe hain
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// JWT Authentication Setup
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var secretKey = jwtSettings["SecretKey"] ?? throw new ArgumentNullException("JWT Secret Key is missing");
+
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; // Default authentication JWT set kiya
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; // Default challenge bhi JWT set kiya
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = true, // Issuer ko validate karega (Token kisne issue kiya hai)
-        ValidateAudience = true, // Audience ko validate karega (Kaun use kar raha hai)
-        ValidateLifetime = true, // Token ka expiry time check karega
-        ValidateIssuerSigningKey = true, // Signing key ko validate karega
-        ValidIssuer = jwtSettings["Issuer"], // Valid Issuer ko set kiya
-        ValidAudience = jwtSettings["Audience"], // Valid Audience ko set kiya
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)) // Secret key ko use karke security key generate ki
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
     };
 });
 
-// Database (EF Core) aur other services ko register kar rahe hain
+// Database Configuration (Fixed Migration Assembly)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection"), // Database connection string le rahe hain
-        sqlOptions => sqlOptions.MigrationsAssembly("FunDooNotes_App.WebAPI") // Migration assembly specify kiya
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        b => b.MigrationsAssembly("FunDooNotesC_.DataLayer") // Corrected migration assembly
     ));
 
-// Dependency Injection setup kiya
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>)); // Generic repository ko register kiya
-builder.Services.AddScoped<IUserRepository, UserRepository>(); // User repository ko register kiya
-builder.Services.AddScoped<IUserService, UserService>(); // User service ko register kiya
-builder.Services.AddScoped<INoteService, NoteService>(); // Note service ko register kiya
+// Dependency Injection
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<INoteService, NoteService>();
 
-var app = builder.Build(); // Application build ho raha hai
+var app = builder.Build();
 
-// Development mode ke liye Swagger enable kiya
+// Middleware Pipeline
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger(); // Swagger enable kiya
-    app.UseSwaggerUI(); // Swagger UI enable kiya
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection(); // HTTPS redirection enable kiya
-
-// Authentication aur Authorization middleware enable kiya
-app.UseAuthentication(); // Authentication middleware add kiya
-app.UseAuthorization(); // Authorization middleware add kiya
-
-app.MapControllers(); // Controllers ko map kiya jisse endpoints accessible ho sakein
-app.Run(); // Application run kar diya
+app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+app.Run();

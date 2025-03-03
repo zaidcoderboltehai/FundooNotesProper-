@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic; // List aur collections handle karne ke liye
-using System.Linq; // LINQ queries use karne ke liye
-using System.Threading.Tasks; // Asynchronous methods ke liye
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 using FunDooNotesC_.DataLayer.Entities; // User entity ko access karne ke liye namespace include kiya hai
 
 namespace FunDooNotesC_.RepoLayer
@@ -25,6 +27,14 @@ namespace FunDooNotesC_.RepoLayer
             return Task.FromResult((IEnumerable<User>)_users); // Users list ko return kar raha hai
         }
 
+        // Naya overload: Predicate ke basis par filtered users ko fetch karne ke liye method
+        public Task<IEnumerable<User>> GetAllAsync(Expression<Func<User, bool>> predicate)
+        {
+            // _users ko AsQueryable() bana ke predicate apply kar rahe hain, phir result ko list me convert kar rahe hain.
+            var filteredUsers = _users.AsQueryable().Where(predicate).AsEnumerable();
+            return Task.FromResult(filteredUsers);
+        }
+
         // ID ke basis pe ek specific user ko find karne ka method
         public Task<User?> GetByIdAsync(int id)
         {
@@ -35,7 +45,7 @@ namespace FunDooNotesC_.RepoLayer
         // User data ko update karne ka method
         public Task UpdateAsync(User entity)
         {
-            var user = _users.FirstOrDefault(u => u.Id == entity.Id); // Pehle existing user ko find kar raha hai
+            var user = _users.FirstOrDefault(u => u.Id == entity.Id); // Pehle, existing user ko find kar raha hai
             if (user != null) // Agar user mil gaya toh uska data update kar raha hai
             {
                 user.FirstName = entity.FirstName;

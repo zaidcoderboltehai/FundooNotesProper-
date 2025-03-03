@@ -1,5 +1,4 @@
-﻿// File: FunDooNotesC_.BusinessLogicLayer/Services/UserService.cs
-using FunDooNotesC_.BusinessLogicLayer.Helpers; // Include helper namespace
+﻿using FunDooNotesC_.BusinessLogicLayer.Helpers; // Include helper namespace
 using FunDooNotesC_.BusinessLogicLayer.Interfaces;
 using FunDooNotesC_.DataLayer.Entities;
 using FunDooNotesC_.RepoLayer;
@@ -44,6 +43,12 @@ namespace FunDooNotesC_.BusinessLogicLayer.Interfaces
             // Password verification helper se
             bool isValid = PasswordHelper.VerifyPassword(user, password);
             return isValid ? user : null;
+        }
+
+        // Naya method: User ko ID ke basis par fetch karne ke liye
+        public async Task<User?> GetUserByIdAsync(int id)
+        {
+            return await _userRepository.GetByIdAsync(id);
         }
     }
 }

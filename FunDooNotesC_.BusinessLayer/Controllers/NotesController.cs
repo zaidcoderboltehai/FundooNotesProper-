@@ -1,68 +1,108 @@
-﻿using FunDooNotesC_.BusinessLogicLayer.Interfaces; // Interface ka use jo note-related logic ko handle karega
-using FunDooNotesC_.DataLayer.Entities; // Notes se related entity ko access karne ke liye
-using Microsoft.AspNetCore.Mvc; // API controller banane ke liye
-using System.Threading.Tasks; // Asynchronous operations ko handle karne ke liye
+﻿// Controllers/NotesController.cs
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using FunDooNotesC_.DataLayer.Entities;
+using FunDooNotesC_.BusinessLogicLayer.Interfaces;
+using System.Security.Claims;
+using System.ComponentModel.DataAnnotations;
 
-namespace FunDooNotesC_.BusinessLayer.Controllers // Namespace define kar raha hai jo is controller ko identify karega
+namespace FunDooNotesC_.BusinessLayer.Controllers
 {
-    // Ye controller notes se related API requests handle karega
-    [ApiController] // Controller ko API controller ke roop me mark kar raha hai
-    [Route("api/[controller]")] // API ka base route set kar raha hai, e.g., api/notes
-    public class NotesController : ControllerBase // NotesController class jo ControllerBase inherit karega
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
+    public class NotesController : ControllerBase
     {
-        private readonly INoteService _noteService; // INoteService ka reference jo note-related business logic handle karega
+        private readonly INoteService _noteService;
 
-        // Constructor jo NoteService ko inject karega (Dependency Injection)
         public NotesController(INoteService noteService)
         {
-            _noteService = noteService; // Private field me service ko assign kar rahe hain
+            _noteService = noteService;
         }
 
-        // Get API (saare notes retrieve karne ke liye)
-        [HttpGet] // HTTP GET request handle karega (URL: api/notes)
+        private int GetCurrentUserId()
+        {
+            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        }
+
+        [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var notes = await _noteService.GetAllNotesAsync(); // Saare notes ko fetch kar raha hai
-            return Ok(notes); // Notes ko response me bhej raha hai
+            var userId = GetCurrentUserId();
+            var notes = await _noteService.GetUserNotesAsync(userId);
+            return Ok(notes);
         }
 
-        // Get API (ek particular note retrieve karne ke liye ID ke basis par)
-        [HttpGet("{id}")] // ID ke saath HTTP GET request handle karega (URL: api/notes/{id})
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var note = await _noteService.GetNoteByIdAsync(id); // ID ke basis par note fetch kar raha hai
-            if (note == null) // Agar note nahi mila to
-                return NotFound(); // 404 response dega
+            var note = await _noteService.GetNoteByIdAsync(id);
+            if (note == null || note.UserId != GetCurrentUserId())
+                return NotFound(new { error = "Note not found" });
 
-            return Ok(note); // Note return karega agar mila toh
+            return Ok(note);
         }
 
-        // Post API (naya note create karne ke liye)
-        [HttpPost] // HTTP POST request handle karega (URL: api/notes)
-        public async Task<IActionResult> Create([FromBody] Note note) // Request body se note ka data lega
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] NoteRequest request)
         {
-            var createdNote = await _noteService.CreateNoteAsync(note); // Naya note create kar raha hai
-            return CreatedAtAction(nameof(GetById), new { id = createdNote.Id }, createdNote); // Response me naye note ka ID return karega
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var note = new Note
+            {
+                Title = request.Title,
+                Description = request.Description,
+                Color = request.Color,
+                UserId = GetCurrentUserId(),
+                CreatedDate = DateTime.UtcNow
+            };
+
+            var createdNote = await _noteService.CreateNoteAsync(note);
+            return CreatedAtAction(nameof(GetById), new { id = createdNote.Id }, createdNote);
         }
 
-        // Put API (existing note update karne ke liye)
-        [HttpPut("{id}")] // HTTP PUT request handle karega (URL: api/notes/{id})
-        public async Task<IActionResult> Update(int id, [FromBody] Note note) // Request body me updated note ka data lega
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] NoteRequest request)
         {
-            if (id != note.Id) // Agar provided ID aur note ki ID match nahi karti toh
-                return BadRequest("Note ID mismatch"); // Bad request response bhejega
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            await _noteService.UpdateNoteAsync(note); // Note ko update karega
-            return NoContent(); // Successfully update hone ke baad empty response dega
+            var existingNote = await _noteService.GetNoteByIdAsync(id);
+            if (existingNote == null || existingNote.UserId != GetCurrentUserId())
+                return Unauthorized(new { error = "Unauthorized access" });
+
+            existingNote.Title = request.Title;
+            existingNote.Description = request.Description;
+            existingNote.Color = request.Color;
+
+            await _noteService.UpdateNoteAsync(existingNote);
+            return NoContent();
         }
 
-        // Delete API (ek note delete karne ke liye)
-        [HttpDelete("{id}")] // HTTP DELETE request handle karega (URL: api/notes/{id})
+        [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _noteService.DeleteNoteAsync(id); // Note ko delete karega
-            return NoContent(); // Successfully delete hone ke baad empty response dega
-        }
+            var note = await _noteService.GetNoteByIdAsync(id);
+            if (note == null || note.UserId != GetCurrentUserId())
+                return Unauthorized(new { error = "Unauthorized access" });
 
+            await _noteService.DeleteNoteAsync(id);
+            return NoContent();
+        }
+    }
+
+    public class NoteRequest
+    {
+        [Required(ErrorMessage = "Title is required")]
+        [StringLength(100, ErrorMessage = "Title cannot exceed 100 characters")]
+        public string Title { get; set; }
+
+        [Required(ErrorMessage = "Description is required")]
+        [StringLength(1000, ErrorMessage = "Description cannot exceed 1000 characters")]
+        public string Description { get; set; }
+
+        [StringLength(20, ErrorMessage = "Color code cannot exceed 20 characters")]
+        public string Color { get; set; }
     }
 }
