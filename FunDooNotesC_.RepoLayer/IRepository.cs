@@ -1,31 +1,32 @@
 ﻿using System;
-using System.Collections.Generic; // IEnumerable ke liye
-using System.Linq.Expressions;      // Expression<Func<T, bool>> ke liye
-using System.Threading.Tasks;       // Async programming ke liye
+using System.Collections.Generic; // IEnumerable ka use karne ke liye jo ek collection ko represent karta hai
+using System.Linq.Expressions;  // Expression<Func<T, bool>> ka use hota hai dynamic queries banane ke liye
+using System.Threading.Tasks;   // Async programming aur Task-based asynchronous methods ke liye
 
 namespace FunDooNotesC_.RepoLayer
 {
-    // Generic repository interface jo kisi bhi entity ke liye CRUD operations define karta hai.
+    // Yeh ek generic repository interface hai jo kisi bhi entity ke liye CRUD operations define karta hai.
     // "T" ek generic type hai jo sirf classes ke liye valid hoga.
     public interface IRepository<T> where T : class
     {
         // Sabhi entities ko asynchronously fetch karne ke liye method (without filter).
         Task<IEnumerable<T>> GetAllAsync();
 
-        // Naya method: Predicate ke basis pe filter karke entities ko fetch karega.
-        // Yeh Expression<Func<T, bool>> use karta hai taaki query ko SQL me translate kiya ja sake.
+        // Yeh method kisi condition ke basis par entities fetch karega.
+        // Expression<Func<T, bool>> ka use hota hai taaki condition SQL query me convert ho sake.
         Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> predicate);
 
-        // Ek specific entity ko uske ID se asynchronously fetch karne ke liye method.
+        // Yeh method ek specific entity ko uski ID ke basis par asynchronously fetch karega.
+        // "T?" ka matlab hai ki agar entity na mile toh null return ho sake.
         Task<T?> GetByIdAsync(int id);
 
-        // Nayi entity ko database me asynchronously add karne ke liye method.
+        // Yeh method ek naye record ko asynchronously database me add karega.
         Task AddAsync(T entity);
 
-        // Existing entity ko database me asynchronously update karne ke liye method.
+        // Yeh method kisi existing entity ko database me update karega.
         Task UpdateAsync(T entity);
 
-        // Kisi entity ko ID ke basis pe database se asynchronously delete karne ke liye method.
+        // Yeh method kisi entity ko ID ke basis pe database se delete karega.
         Task DeleteAsync(int id);
     }
 }

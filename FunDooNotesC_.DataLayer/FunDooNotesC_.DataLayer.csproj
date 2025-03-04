@@ -1,32 +1,77 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<!-- Yeh line batati hai ke project Microsoft.NET.Sdk use karega build karne ke liye -->
 
 	<PropertyGroup>
+		<!-- Yeh block me project ki properties define hoti hain -->
+
 		<TargetFramework>net6.0</TargetFramework>
+		<!-- Yeh set karta hai ke project .NET 6.0 pe run hoga -->
+
 		<ImplicitUsings>enable</ImplicitUsings>
+		<!-- Implicit using directives enable hain, matlab common namespaces automatically include honge -->
+
 		<Nullable>enable</Nullable>
+		<!-- Nullable reference types enable hain, jisse null safety improve hoti hai -->
+
 		<!-- Explicitly set assembly and namespace -->
+		<!-- Yeh comment batata hai ke niche assembly name aur root namespace explicitly set kiye gaye hain -->
+
 		<AssemblyName>FunDooNotesC_.DataLayer</AssemblyName>
+		<!-- Yeh assembly ka naam set karta hai: FunDooNotesC_.DataLayer -->
+
 		<RootNamespace>FunDooNotesC_.DataLayer</RootNamespace>
+		<!-- Yeh root namespace define karta hai jo project me use hoga -->
+
 	</PropertyGroup>
+	<!-- PropertyGroup block khatam -->
 
 	<ItemGroup>
+		<!-- Yeh block packages aur dependencies add karne ke liye use hota hai -->
+
 		<!-- Updated EntityFrameworkCore.Tools to 6.x version for .NET 6 compatibility -->
+		<!-- Yeh comment batata hai ke EF Core Tools package ko .NET 6 ke liye update kiya gaya hai -->
+
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.0">
+			<!-- EF Core Tools package reference, version 6.0.0 -->
+
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<!-- Yeh specify karta hai ki kaunse assets include karne hain is package me -->
+
 			<PrivateAssets>all</PrivateAssets>
+			<!-- Yeh ensure karta hai ke yeh package ke assets project ke bahar expose na hon -->
+
 		</PackageReference>
+		<!-- PackageReference block for EF Core Tools end -->
 
 		<!-- Consistent 6.0.0 versions for EF packages -->
+		<!-- Yeh comment batata hai ke niche ke EF packages sab version 6.0.0 ke hain -->
+
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
+		<!-- Package reference for JWT Bearer authentication, version 6.0.0 -->
+
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
+		<!-- Package reference for EF Core, version 6.0.0 -->
+
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0" />
+		<!-- Package reference for EF Core SQL Server provider, version 6.0.0 -->
 
 		<!-- Security token handling -->
+		<!-- Yeh comment batata hai ke niche ka package security tokens handle karta hai -->
+
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.34.0" />
+		<!-- Package reference for JWT token handling, version 6.34.0 -->
+
 	</ItemGroup>
+	<!-- Pehla ItemGroup block end -->
 
 	<ItemGroup>
+		<!-- Yeh block dusre projects ko reference karne ke liye use hota hai -->
+
 		<ProjectReference Include="..\FunDooNotesC_.ModelLayer\FunDooNotesC_.ModelLayer.csproj" />
+		<!-- Yeh reference karta hai dusre project (ModelLayer) ko jo relative path pe hai -->
+
 	</ItemGroup>
+	<!-- Dusra ItemGroup block end -->
 
 </Project>
+<!-- Project tag close ho gaya -->

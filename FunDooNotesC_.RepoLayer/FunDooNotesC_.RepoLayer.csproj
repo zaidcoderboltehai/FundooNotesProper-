@@ -1,19 +1,37 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<!-- Yeh batata hai ki project .NET SDK ka use kar raha hai -->
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<!-- Yeh project ke important properties define karta hai -->
+		<TargetFramework>net6.0</TargetFramework>
+		<!-- .NET 6 framework use kar raha hai is project ke liye -->
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.34.0" />
-  </ItemGroup>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<!-- .NET automatically commonly used namespaces ko include karega, taaki har file me manually likhne ki zaroorat na ho -->
 
-  <ItemGroup>
-    <ProjectReference Include="..\FunDooNotesC_.DataLayer\FunDooNotesC_.DataLayer.csproj" />
-  </ItemGroup>
+		<Nullable>enable</Nullable>
+		<!-- Yeh feature enable karta hai jo nullability check karega aur warning dega agar koi variable null ho sakta hai -->
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- Yeh section dependencies ya packages define karta hai jo project ke andar use honge -->
+
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
+		<!-- Yeh JWT (JSON Web Token) authentication ke liye package add karta hai, jo authentication aur authorization ke liye use hota hai -->
+
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
+		<!-- Yeh Entity Framework Core ka package add karta hai jo database ke saath kaam karne ke liye use hota hai -->
+
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.34.0" />
+		<!-- Yeh JWT tokens ko generate aur validate karne ke liye use hota hai -->
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Yeh ek aur section hai jo project references define karega -->
+
+		<ProjectReference Include="..\FunDooNotesC_.DataLayer\FunDooNotesC_.DataLayer.csproj" />
+		<!-- Yeh project reference add karta hai jo FunDooNotesC_.DataLayer project ko include karega.
+         Iska matlab hai ki yeh project DataLayer wale project ki classes aur logic ko use kar sakta hai -->
+	</ItemGroup>
 
 </Project>

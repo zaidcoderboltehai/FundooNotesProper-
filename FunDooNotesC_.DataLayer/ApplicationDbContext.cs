@@ -1,28 +1,28 @@
-﻿using Microsoft.EntityFrameworkCore;
-using FunDooNotesC_.DataLayer.Entities;
+﻿using Microsoft.EntityFrameworkCore; // Entity Framework Core ka use kar rahe hain database operations ke liye.
+using FunDooNotesC_.DataLayer.Entities; // Entities (User, Note) ka reference include kar rahe hain.
 
-namespace FunDooNotesC_.DataLayer
+namespace FunDooNotesC_.DataLayer // Namespace jisme database context define kiya gaya hai.
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : DbContext // DbContext inherit karke database se interact karne wala class bana rahe hain.
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) // Constructor jo options leta hai.
+            : base(options) // Parent class (DbContext) ke constructor ko options pass kar rahe hain.
         { }
 
         // Database Tables
-        public DbSet<User> Users { get; set; }
-        public DbSet<Note> Notes { get; set; }
+        public DbSet<User> Users { get; set; } // Users table represent kar raha hai.
+        public DbSet<Note> Notes { get; set; } // Notes table represent kar raha hai.
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder) // Database relationships configure karne ke liye.
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(modelBuilder); // Parent class ka OnModelCreating method call kar rahe hain.
 
             // Configure the relationship between User and Note
-            modelBuilder.Entity<Note>()
-                .HasOne(n => n.User)          // A Note belongs to one User
-                .WithMany(u => u.Notes)       // A User can have many Notes
-                .HasForeignKey(n => n.UserId) // Foreign key in Notes table
-                .OnDelete(DeleteBehavior.Cascade); // Optional: Delete notes when user is deleted
+            modelBuilder.Entity<Note>() // Note entity ke liye relationship set kar rahe hain.
+                .HasOne(n => n.User)          // Ek Note ek User se belong karega (one-to-many relationship).
+                .WithMany(u => u.Notes)       // Ek User ke multiple Notes ho sakte hain.
+                .HasForeignKey(n => n.UserId) // Notes table me UserId foreign key hoga.
+                .OnDelete(DeleteBehavior.Cascade); // Agar User delete ho to uske saare Notes bhi delete ho jayein.
         }
     }
 }

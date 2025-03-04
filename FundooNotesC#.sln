@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunDooNotesC_.BusinessLayer", "FunDooNotesC_.BusinessLayer\FunDooNotesC_.BusinessLayer.csproj", "{ADAD2F54-79A1-4683-845C-CDB58495733C}"
 EndProject

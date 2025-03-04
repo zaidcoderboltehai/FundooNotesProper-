@@ -1,32 +1,80 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+	<!-- Ye line batati hai ki ye project ek ASP.NET Core web application hai. 
+       Sdk="Microsoft.NET.Sdk.Web" ka matlab hai ki ye web-based project hai. -->
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup>
+		<!-- PropertyGroup mein project ke basic settings define hote hain. -->
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.34.0" />
-  </ItemGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<!-- Ye batata hai ki project .NET 6.0 framework pe build hoga. 
+         TargetFramework ka matlab hai ki ye project kis .NET version ke liye banaya gaya hai. -->
 
-  <ItemGroup>
-    <ProjectReference Include="..\FunDooNotesC_.BusinessLogicLayer\FunDooNotesC_.BusinessLogicLayer.csproj" />
-    <ProjectReference Include="..\FunDooNotesC_.DataLayer\FunDooNotesC_.DataLayer.csproj" />
-    <ProjectReference Include="..\FunDooNotesC_.ModelLayer\FunDooNotesC_.ModelLayer.csproj" />
-    <ProjectReference Include="..\FunDooNotesC_.RepoLayer\FunDooNotesC_.RepoLayer.csproj" />
-  </ItemGroup>
+		<Nullable>enable</Nullable>
+		<!-- Ye enable karta hai "nullable reference types" feature, jisse compiler warnings dega 
+         agar koi variable null ho sakta hai aur usko handle nahi kiya gaya hai. -->
+
+		<ImplicitUsings>enable</ImplicitUsings>
+		<!-- Ye feature automatically common namespaces (jaise System, System.Linq) ko include karta hai, 
+         jisse humein har file mein manually using statements likhne ki zarurat nahi padti. -->
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- ItemGroup mein project ke dependencies aur references define hote hain. -->
+
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
+		<!-- Ye package JWT (JSON Web Token) based authentication ko enable karta hai. 
+         JWT ka use user login aur authorization ke liye hota hai. -->
+
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
+		<!-- Entity Framework Core ka package hai, jo database ke saath interact karne mein madad karta hai. 
+         Ye ORM (Object-Relational Mapping) provide karta hai. -->
+
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<!-- Ye package Entity Framework Core ke design-time tools provide karta hai, 
+         jaise database migrations create karna aur update karna. -->
+
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0" />
+		<!-- Ye package SQL Server database ke saath Entity Framework Core ko integrate karta hai. 
+         SQL Server ka use database ke liye hota hai. -->
+
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.2">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<!-- Ye package Entity Framework Core ke command-line tools provide karta hai, 
+         jaise migrations add karna aur database update karna. -->
+
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+		<!-- Ye package Swagger ko enable karta hai, jo ek API documentation tool hai. 
+         Swagger ka use API testing aur documentation ke liye hota hai. -->
+
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.34.0" />
+		<!-- Ye package JWT tokens ko create aur validate karne ke liye use hota hai. 
+         JWT tokens ka use user authentication aur authorization ke liye hota hai. -->
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Ye section project ke internal references ko define karta hai. 
+         Yahan hum dusre projects (class libraries) ko reference karte hain. -->
+
+		<ProjectReference Include="..\FunDooNotesC_.BusinessLogicLayer\FunDooNotesC_.BusinessLogicLayer.csproj" />
+		<!-- Ye line Business Logic Layer (BLL) project ko reference karti hai. 
+         BLL mein business logic aur rules define hote hain. -->
+
+		<ProjectReference Include="..\FunDooNotesC_.DataLayer\FunDooNotesC_.DataLayer.csproj" />
+		<!-- Ye line Data Layer project ko reference karti hai. 
+         Data Layer database interactions ko handle karta hai. -->
+
+		<ProjectReference Include="..\FunDooNotesC_.ModelLayer\FunDooNotesC_.ModelLayer.csproj" />
+		<!-- Ye line Model Layer project ko reference karti hai. 
+         Model Layer mein data models (jaise User, Note) define hote hain. -->
+
+		<ProjectReference Include="..\FunDooNotesC_.RepoLayer\FunDooNotesC_.RepoLayer.csproj" />
+		<!-- Ye line Repository Layer project ko reference karti hai. 
+         Repository Layer database operations ko handle karta hai. -->
+	</ItemGroup>
 
 </Project>

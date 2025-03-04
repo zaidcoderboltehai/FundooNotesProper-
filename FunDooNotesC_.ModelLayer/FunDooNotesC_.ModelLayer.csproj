@@ -1,15 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<!-- Yeh batata hai ki yeh project .NET SDK use kar raha hai -->
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<!-- .NET 6.0 framework ka target set kar raha hai -->
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.34.0" />
-  </ItemGroup>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<!-- Yeh setting automatically commonly used namespaces include karne ki permission deti hai -->
+
+		<Nullable>enable</Nullable>
+		<!-- Yeh nullable reference types ko enable karta hai, taaki null safety maintain rahe -->
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
+		<!-- Yeh package JWT Bearer authentication handle karne ke liye hai, jo authentication tokens ke liye use hota hai -->
+
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
+		<!-- Entity Framework Core ka package jo database se interact karne me madad karta hai -->
+
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.34.0" />
+		<!-- Yeh package JWT (JSON Web Token) generate aur validate karne ke liye use hota hai -->
+	</ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using FunDooNotesC_.DataLayer.Entities; // User entity ka reference add karo
+﻿// FunDooNotesC_.DataLayer/Entities/Note.cs
+using System.ComponentModel.DataAnnotations;
 
 namespace FunDooNotesC_.DataLayer.Entities
 {
@@ -19,9 +19,11 @@ namespace FunDooNotesC_.DataLayer.Entities
         public string Color { get; set; } = string.Empty;
 
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
-        public int UserId { get; set; } // Foreign Key
+        public int UserId { get; set; }
+        public bool IsArchived { get; set; } = false;
+        public bool IsTrashed { get; set; } = false;
+        public DateTime? DeletedDate { get; set; }
 
-        // Navigation Property (Yeh add karna zaroori hai)
         public User User { get; set; }
     }
 }

@@ -3,10 +3,12 @@ using System.Threading.Tasks; // Asynchronous programming support karne ke liye
 
 namespace FunDooNotesC_.RepoLayer
 {
-    // IUserRepository interface, jo IRepository<User> ko inherit kar raha hai
+    // IUserRepository ek interface hai jo IRepository<User> ko inherit kar raha hai.
+    // Iska matlab yeh hai ki yeh repository User entity ke liye specific operations provide karegi.
     public interface IUserRepository : IRepository<User>
     {
-        // Specific user ko email ke basis pe fetch karne ke liye asynchronous method
+        // Yeh method ek specific user ko uske email ke basis pe fetch karega.
+        // "Task<User?>" ka matlab hai ki yeh ek asynchronous operation hoga aur agar user na mile toh null return ho sakta hai.
         Task<User?> GetByEmailAsync(string email);
     }
 }

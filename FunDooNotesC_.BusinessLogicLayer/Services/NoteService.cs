@@ -1,4 +1,5 @@
-﻿using FunDooNotesC_.BusinessLogicLayer.Interfaces;
+﻿// FunDooNotesC_.BusinessLogicLayer/Services/NoteService.cs
+using FunDooNotesC_.BusinessLogicLayer.Interfaces;
 using FunDooNotesC_.DataLayer.Entities;
 using FunDooNotesC_.RepoLayer;
 using System.Collections.Generic;
@@ -16,13 +17,13 @@ namespace FunDooNotesC_.BusinessLogicLayer.Services
             _noteRepository = noteRepository;
         }
 
-        // Option 1: Filtering in the Service Layer
         public async Task<IEnumerable<Note>> GetUserNotesAsync(int userId)
         {
-            // Fetch all notes using the generic GetAllAsync() method from the repository.
-            var allNotes = await _noteRepository.GetAllAsync();
-            // Filter using LINQ to return only those notes that belong to the specified user.
-            return allNotes.Where(n => n.UserId == userId);
+            return await _noteRepository.GetAllAsync(n =>
+                n.UserId == userId &&
+                !n.IsArchived &&
+                !n.IsTrashed
+            );
         }
 
         public async Task<Note?> GetNoteByIdAsync(int id)
@@ -43,7 +44,78 @@ namespace FunDooNotesC_.BusinessLogicLayer.Services
 
         public async Task DeleteNoteAsync(int id)
         {
+            var note = await _noteRepository.GetByIdAsync(id);
+            if (note != null)
+            {
+                note.IsTrashed = true;
+                note.DeletedDate = DateTime.UtcNow;
+                await _noteRepository.UpdateAsync(note);
+            }
+        }
+
+        // Archive/Trash Implementation
+        public async Task ArchiveNoteAsync(int id)
+        {
+            var note = await _noteRepository.GetByIdAsync(id);
+            if (note != null)
+            {
+                note.IsArchived = true;
+                await _noteRepository.UpdateAsync(note);
+            }
+        }
+
+        public async Task UnarchiveNoteAsync(int id)
+        {
+            var note = await _noteRepository.GetByIdAsync(id);
+            if (note != null)
+            {
+                note.IsArchived = false;
+                await _noteRepository.UpdateAsync(note);
+            }
+        }
+
+        public async Task TrashNoteAsync(int id)
+        {
+            var note = await _noteRepository.GetByIdAsync(id);
+            if (note != null)
+            {
+                note.IsTrashed = true;
+                note.DeletedDate = DateTime.UtcNow;
+                await _noteRepository.UpdateAsync(note);
+            }
+        }
+
+        public async Task RestoreNoteAsync(int id)
+        {
+            var note = await _noteRepository.GetByIdAsync(id);
+            if (note != null)
+            {
+                note.IsTrashed = false;
+                note.DeletedDate = null;
+                await _noteRepository.UpdateAsync(note);
+            }
+        }
+
+        public async Task DeletePermanentlyAsync(int id)
+        {
             await _noteRepository.DeleteAsync(id);
+        }
+
+        public async Task<IEnumerable<Note>> GetArchivedNotesAsync(int userId)
+        {
+            return await _noteRepository.GetAllAsync(n =>
+                n.UserId == userId &&
+                n.IsArchived &&
+                !n.IsTrashed
+            );
+        }
+
+        public async Task<IEnumerable<Note>> GetTrashedNotesAsync(int userId)
+        {
+            return await _noteRepository.GetAllAsync(n =>
+                n.UserId == userId &&
+                n.IsTrashed
+            );
         }
     }
 }

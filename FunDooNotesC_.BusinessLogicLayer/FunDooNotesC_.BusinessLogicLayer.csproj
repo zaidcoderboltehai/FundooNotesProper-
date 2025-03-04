@@ -1,21 +1,43 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<!-- Ye line batati hai ki yeh project .NET SDK ka use kar raha hai. SDK mein tools aur libraries hote hain jo project ko build aur run karne mein help karte hain. -->
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<!-- PropertyGroup mein project ki basic settings define ki jati hain. -->
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.34.0" />
-  </ItemGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<!-- Ye line batati hai ki yeh project .NET 6.0 framework ke liye banaya gaya hai. -->
 
-  <ItemGroup>
-    <ProjectReference Include="..\FunDooNotesC_.DataLayer\FunDooNotesC_.DataLayer.csproj" />
-    <ProjectReference Include="..\FunDooNotesC_.RepoLayer\FunDooNotesC_.RepoLayer.csproj" />
-  </ItemGroup>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<!-- Ye line batati hai ki common namespaces (jaise `System`, `System.Linq`) automatically include honge. Isse humein har baar `using` statements likhne ki zarurat nahi padti. -->
+
+		<Nullable>enable</Nullable>
+		<!-- Ye line nullable reference types ko enable karti hai. Isse hum variables ko explicitly `null` allow karne ya nahi karne ke liye mark kar sakte hain. -->
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- ItemGroup mein project ke dependencies ya references define kiye jate hain. -->
+
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
+		<!-- Ye line JWT (JSON Web Token) authentication ke liye required package ko add karti hai. -->
+
+		<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.0" />
+		<!-- Ye line user authentication aur authorization ke liye ASP.NET Identity package ko add karti hai. -->
+
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
+		<!-- Ye line Entity Framework Core package ko add karti hai, jo database se interact karne ke liye use hota hai. -->
+
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.34.0" />
+		<!-- Ye line JWT tokens create aur validate karne ke liye required package ko add karti hai. -->
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Ye ItemGroup project ke internal references ko define karta hai. -->
+
+		<ProjectReference Include="..\FunDooNotesC_.DataLayer\FunDooNotesC_.DataLayer.csproj" />
+		<!-- Ye line `FunDooNotesC_.DataLayer` project ko reference karta hai. Iska matlab hai ki yeh project `DataLayer` project ke code aur classes ko use kar sakta hai. -->
+
+		<ProjectReference Include="..\FunDooNotesC_.RepoLayer\FunDooNotesC_.RepoLayer.csproj" />
+		<!-- Ye line `FunDooNotesC_.RepoLayer` project ko reference karta hai. Iska matlab hai ki yeh project `RepoLayer` project ke code aur classes ko use kar sakta hai. -->
+	</ItemGroup>
 
 </Project>
