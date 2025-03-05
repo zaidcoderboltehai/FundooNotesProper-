@@ -5,6 +5,8 @@ namespace FunDooNotesC_.DataLayer.Entities
 {
     public class Note
     {
+        // Add this line at the bottom of existing Note class
+        public ICollection<NoteLabel> NoteLabels { get; set; }
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Title is required")]

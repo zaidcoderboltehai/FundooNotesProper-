@@ -71,6 +71,12 @@
 		<!-- Yeh reference karta hai dusre project (ModelLayer) ko jo relative path pe hai -->
 
 	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="appsettings.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 	<!-- Dusra ItemGroup block end -->
 
 </Project>

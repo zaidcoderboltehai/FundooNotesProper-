@@ -14,133 +14,52 @@ namespace FunDooNotesC_.BusinessLayer.Controllers
     public class NotesController : ControllerBase
     {
         private readonly INoteService _noteService;
+        private readonly ILabelService _labelService;
         private int GetCurrentUserId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-        public NotesController(INoteService noteService)
+        public NotesController(INoteService noteService, ILabelService labelService)
         {
             _noteService = noteService;
+            _labelService = labelService;
         }
 
-        // ------------------------ CREATE NOTE ------------------------
-        [HttpPost]
-        public async Task<IActionResult> CreateNote([FromBody] NoteRequest request)
+        // ... Existing methods (CreateNote, GetNotes, Archive, etc.) ...
+
+        // ------------------------ LABEL LINKING ------------------------
+        [HttpPost("{noteId}/labels/{labelId}")]
+        public async Task<IActionResult> AddLabelToNote(int noteId, int labelId)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var note = new Note
-            {
-                Title = request.Title,
-                Description = request.Description,
-                Color = request.Color,
-                UserId = GetCurrentUserId(),
-                CreatedDate = DateTime.UtcNow
-            };
-
-            await _noteService.CreateNoteAsync(note);
-            return Ok(new
-            {
-                note.Id,
-                note.Title,
-                note.Description,
-                note.Color
-            });
-        }
-
-        // ------------------------ GET ALL NOTES ------------------------
-        [HttpGet]
-        public async Task<IActionResult> GetAllNotes()
-        {
-            var userId = GetCurrentUserId();
-            var notes = await _noteService.GetUserNotesAsync(userId);
-            return Ok(notes);
-        }
-
-        // ------------------------ ARCHIVE/UNARCHIVE ------------------------
-        [HttpPut("{id}/archive")]
-        public async Task<IActionResult> Archive(int id)
-        {
-            var note = await _noteService.GetNoteByIdAsync(id);
+            // Check note ownership
+            var note = await _noteService.GetNoteByIdAsync(noteId);
             if (note == null || note.UserId != GetCurrentUserId())
                 return Unauthorized(new { error = "Unauthorized access" });
 
-            await _noteService.ArchiveNoteAsync(id);
-            return NoContent();
+            // Check label ownership
+            var label = await _labelService.GetLabelByIdAsync(labelId);
+            if (label == null || label.UserId != GetCurrentUserId())
+                return Unauthorized(new { error = "Unauthorized access" });
+
+            await _labelService.AddLabelToNote(noteId, labelId);
+            return Ok();
         }
 
-        [HttpPut("{id}/unarchive")]
-        public async Task<IActionResult> Unarchive(int id)
+        [HttpDelete("{noteId}/labels/{labelId}")]
+        public async Task<IActionResult> RemoveLabelFromNote(int noteId, int labelId)
         {
-            var note = await _noteService.GetNoteByIdAsync(id);
+            // Check note ownership
+            var note = await _noteService.GetNoteByIdAsync(noteId);
             if (note == null || note.UserId != GetCurrentUserId())
                 return Unauthorized(new { error = "Unauthorized access" });
 
-            await _noteService.UnarchiveNoteAsync(id);
-            return NoContent();
-        }
-
-        // ------------------------ TRASH/RESTORE ------------------------
-        [HttpPut("{id}/trash")]
-        public async Task<IActionResult> Trash(int id)
-        {
-            var note = await _noteService.GetNoteByIdAsync(id);
-            if (note == null || note.UserId != GetCurrentUserId())
+            // Check label ownership
+            var label = await _labelService.GetLabelByIdAsync(labelId);
+            if (label == null || label.UserId != GetCurrentUserId())
                 return Unauthorized(new { error = "Unauthorized access" });
 
-            await _noteService.TrashNoteAsync(id);
+            await _labelService.RemoveLabelFromNote(noteId, labelId);
             return NoContent();
-        }
-
-        [HttpPut("{id}/restore")]
-        public async Task<IActionResult> Restore(int id)
-        {
-            var note = await _noteService.GetNoteByIdAsync(id);
-            if (note == null || note.UserId != GetCurrentUserId())
-                return Unauthorized(new { error = "Unauthorized access" });
-
-            await _noteService.RestoreNoteAsync(id);
-            return NoContent();
-        }
-
-        // ------------------------ DELETE ------------------------
-        [HttpDelete("{id}/permanent")]
-        public async Task<IActionResult> DeletePermanently(int id)
-        {
-            var note = await _noteService.GetNoteByIdAsync(id);
-            if (note == null || note.UserId != GetCurrentUserId())
-                return Unauthorized(new { error = "Unauthorized access" });
-
-            await _noteService.DeletePermanentlyAsync(id);
-            return NoContent();
-        }
-
-        // ------------------------ GET ARCHIVED/TRASHED ------------------------
-        [HttpGet("archived")]
-        public async Task<IActionResult> GetArchivedNotes()
-        {
-            var userId = GetCurrentUserId();
-            return Ok(await _noteService.GetArchivedNotesAsync(userId));
-        }
-
-        [HttpGet("trashed")]
-        public async Task<IActionResult> GetTrashedNotes()
-        {
-            var userId = GetCurrentUserId();
-            return Ok(await _noteService.GetTrashedNotesAsync(userId));
         }
     }
 
-    public class NoteRequest
-    {
-        [Required(ErrorMessage = "Title is required")]
-        [StringLength(100, ErrorMessage = "Title cannot exceed 100 characters")]
-        public string Title { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Description is required")]
-        [StringLength(1000, ErrorMessage = "Description cannot exceed 1000 characters")]
-        public string Description { get; set; } = string.Empty;
-
-        [StringLength(20, ErrorMessage = "Color code cannot exceed 20 characters")]
-        public string Color { get; set; } = string.Empty;
-    }
+    public class NoteRequest { /* ... Existing code ... */ }
 }

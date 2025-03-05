@@ -1,5 +1,4 @@
-﻿// FunDooNotesC_.BusinessLogicLayer/Services/NoteService.cs
-using FunDooNotesC_.BusinessLogicLayer.Interfaces;
+﻿using FunDooNotesC_.BusinessLogicLayer.Interfaces;
 using FunDooNotesC_.DataLayer.Entities;
 using FunDooNotesC_.RepoLayer;
 using System.Collections.Generic;
@@ -11,10 +10,12 @@ namespace FunDooNotesC_.BusinessLogicLayer.Services
     public class NoteService : INoteService
     {
         private readonly IRepository<Note> _noteRepository;
+        private readonly IRepository<NoteLabel> _noteLabelRepository;
 
-        public NoteService(IRepository<Note> noteRepository)
+        public NoteService(IRepository<Note> noteRepository, IRepository<NoteLabel> noteLabelRepository)
         {
             _noteRepository = noteRepository;
+            _noteLabelRepository = noteLabelRepository;
         }
 
         public async Task<IEnumerable<Note>> GetUserNotesAsync(int userId)
@@ -98,6 +99,16 @@ namespace FunDooNotesC_.BusinessLogicLayer.Services
 
         public async Task DeletePermanentlyAsync(int id)
         {
+            // Fetch all NoteLabel records associated with the Note
+            var noteLabels = await _noteLabelRepository.GetAllAsync(nl => nl.NoteId == id);
+
+            // Delete each NoteLabel record
+            foreach (var noteLabel in noteLabels)
+            {
+                await _noteLabelRepository.DeleteAsync(noteLabel.NoteId);
+            }
+
+            // Finally, delete the Note
             await _noteRepository.DeleteAsync(id);
         }
 

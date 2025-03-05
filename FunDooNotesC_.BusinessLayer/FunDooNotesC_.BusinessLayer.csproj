@@ -59,10 +59,10 @@
 	<ItemGroup>
 		<!-- Ye section project ke internal references ko define karta hai. 
          Yahan hum dusre projects (class libraries) ko reference karte hain. -->
-
-		<ProjectReference Include="..\FunDooNotesC_.BusinessLogicLayer\FunDooNotesC_.BusinessLogicLayer.csproj" />
 		<!-- Ye line Business Logic Layer (BLL) project ko reference karti hai. 
          BLL mein business logic aur rules define hote hain. -->
+
+		<ProjectReference Include="..\FunDooNotesC_.BusinessLogicLayer\FunDooNotesC_.BusinessLogicLayer.csproj" />
 
 		<ProjectReference Include="..\FunDooNotesC_.DataLayer\FunDooNotesC_.DataLayer.csproj" />
 		<!-- Ye line Data Layer project ko reference karti hai. 

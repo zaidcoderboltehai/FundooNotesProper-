@@ -1,32 +1,32 @@
 ﻿using System;
-using System.Collections.Generic; // IEnumerable ka use karne ke liye jo ek collection ko represent karta hai
-using System.Linq.Expressions;  // Expression<Func<T, bool>> ka use hota hai dynamic queries banane ke liye
-using System.Threading.Tasks;   // Async programming aur Task-based asynchronous methods ke liye
+using System.Collections.Generic; // IEnumerable ke liye
+using System.Linq.Expressions;    // Expression queries ke liye
+using System.Threading.Tasks;     // Async operations ke liye
 
 namespace FunDooNotesC_.RepoLayer
 {
-    // Yeh ek generic repository interface hai jo kisi bhi entity ke liye CRUD operations define karta hai.
-    // "T" ek generic type hai jo sirf classes ke liye valid hoga.
+    // Generic repository interface jo CRUD operations define karta hai
     public interface IRepository<T> where T : class
     {
-        // Sabhi entities ko asynchronously fetch karne ke liye method (without filter).
+        // Sabhi entities fetch karo (without filter)
         Task<IEnumerable<T>> GetAllAsync();
 
-        // Yeh method kisi condition ke basis par entities fetch karega.
-        // Expression<Func<T, bool>> ka use hota hai taaki condition SQL query me convert ho sake.
+        // Condition ke basis par filtered entities fetch karo
         Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> predicate);
 
-        // Yeh method ek specific entity ko uski ID ke basis par asynchronously fetch karega.
-        // "T?" ka matlab hai ki agar entity na mile toh null return ho sake.
+        // ID ke basis par ek entity fetch karo
         Task<T?> GetByIdAsync(int id);
 
-        // Yeh method ek naye record ko asynchronously database me add karega.
+        // Nayi entity add karo
         Task AddAsync(T entity);
 
-        // Yeh method kisi existing entity ko database me update karega.
+        // Existing entity update karo
         Task UpdateAsync(T entity);
 
-        // Yeh method kisi entity ko ID ke basis pe database se delete karega.
+        // Entity ko ID ke basis par delete karo (for single-PK tables)
         Task DeleteAsync(int id);
+
+        // Entity directly delete karo (for composite keys)
+        Task DeleteAsync(T entity); // ✅ Ye naya method add kiya gaya hai
     }
 }

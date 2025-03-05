@@ -4,6 +4,7 @@ using FunDooNotesC_.DataLayer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FunDooNotesC_.DataLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250305151732_AddNoteLabelRelationship")]
+    partial class AddNoteLabelRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -162,13 +164,13 @@ namespace FunDooNotesC_.DataLayer.Migrations
                     b.HasOne("FunDooNotesC_.DataLayer.Entities.Label", "Label")
                         .WithMany("NoteLabels")
                         .HasForeignKey("LabelId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FunDooNotesC_.DataLayer.Entities.Note", "Note")
                         .WithMany("NoteLabels")
                         .HasForeignKey("NoteId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Label");
