@@ -1,10 +1,10 @@
-﻿// FunDooNotesC_.BusinessLayer/Controllers/NotesController.cs
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using FunDooNotesC_.DataLayer.Entities;
 using FunDooNotesC_.BusinessLogicLayer.Interfaces;
 using System.Security.Claims;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 namespace FunDooNotesC_.BusinessLayer.Controllers
 {
@@ -21,10 +21,42 @@ namespace FunDooNotesC_.BusinessLayer.Controllers
             _noteService = noteService;
         }
 
-        // Existing CRUD endpoints remain unchanged
-        // ...
+        // ------------------------ CREATE NOTE ------------------------
+        [HttpPost]
+        public async Task<IActionResult> CreateNote([FromBody] NoteRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-        // New endpoints for archive/trash functionality
+            var note = new Note
+            {
+                Title = request.Title,
+                Description = request.Description,
+                Color = request.Color,
+                UserId = GetCurrentUserId(),
+                CreatedDate = DateTime.UtcNow
+            };
+
+            await _noteService.CreateNoteAsync(note);
+            return Ok(new
+            {
+                note.Id,
+                note.Title,
+                note.Description,
+                note.Color
+            });
+        }
+
+        // ------------------------ GET ALL NOTES ------------------------
+        [HttpGet]
+        public async Task<IActionResult> GetAllNotes()
+        {
+            var userId = GetCurrentUserId();
+            var notes = await _noteService.GetUserNotesAsync(userId);
+            return Ok(notes);
+        }
+
+        // ------------------------ ARCHIVE/UNARCHIVE ------------------------
         [HttpPut("{id}/archive")]
         public async Task<IActionResult> Archive(int id)
         {
@@ -47,6 +79,7 @@ namespace FunDooNotesC_.BusinessLayer.Controllers
             return NoContent();
         }
 
+        // ------------------------ TRASH/RESTORE ------------------------
         [HttpPut("{id}/trash")]
         public async Task<IActionResult> Trash(int id)
         {
@@ -69,6 +102,7 @@ namespace FunDooNotesC_.BusinessLayer.Controllers
             return NoContent();
         }
 
+        // ------------------------ DELETE ------------------------
         [HttpDelete("{id}/permanent")]
         public async Task<IActionResult> DeletePermanently(int id)
         {
@@ -80,6 +114,7 @@ namespace FunDooNotesC_.BusinessLayer.Controllers
             return NoContent();
         }
 
+        // ------------------------ GET ARCHIVED/TRASHED ------------------------
         [HttpGet("archived")]
         public async Task<IActionResult> GetArchivedNotes()
         {
@@ -99,13 +134,13 @@ namespace FunDooNotesC_.BusinessLayer.Controllers
     {
         [Required(ErrorMessage = "Title is required")]
         [StringLength(100, ErrorMessage = "Title cannot exceed 100 characters")]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Description is required")]
         [StringLength(1000, ErrorMessage = "Description cannot exceed 1000 characters")]
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         [StringLength(20, ErrorMessage = "Color code cannot exceed 20 characters")]
-        public string Color { get; set; }
+        public string Color { get; set; } = string.Empty;
     }
 }
