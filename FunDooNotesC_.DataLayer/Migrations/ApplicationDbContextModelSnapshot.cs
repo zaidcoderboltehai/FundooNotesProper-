@@ -130,6 +130,12 @@ namespace FunDooNotesC_.DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ResetToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ResetTokenExpiry")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.ToTable("Users");
@@ -162,13 +168,13 @@ namespace FunDooNotesC_.DataLayer.Migrations
                     b.HasOne("FunDooNotesC_.DataLayer.Entities.Label", "Label")
                         .WithMany("NoteLabels")
                         .HasForeignKey("LabelId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("FunDooNotesC_.DataLayer.Entities.Note", "Note")
                         .WithMany("NoteLabels")
                         .HasForeignKey("NoteId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Label");

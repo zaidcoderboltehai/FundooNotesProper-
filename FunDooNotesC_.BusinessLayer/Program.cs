@@ -11,27 +11,39 @@ using FunDooNotesC_.DataLayer.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Services Configuration
+/***************************** Services Configuration *****************************/
+// 1. Logging Setup
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+// 2. Core Services
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
 
-// Register repositories and services
-builder.Services.AddScoped<IUserRepository, UserRepository>(); // Add this line
-builder.Services.AddScoped<IUserService, UserService>();       // Add this line
-
+// 3. Register Repositories and Services
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRepository<Note>, Repository<Note>>();
 builder.Services.AddScoped<IRepository<NoteLabel>, Repository<NoteLabel>>();
 builder.Services.AddScoped<INoteService, NoteService>();
 builder.Services.AddScoped<ILabelRepository, LabelRepository>();
 builder.Services.AddScoped<ILabelService, LabelService>();
 
-// ... rest of the Program.cs remains unchanged
-// Swagger Configuration
+// 4. Swagger Configuration (JWT ke saath)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "FunDooNotes API",
+        Version = "v1"
+    });
+
+    // JWT Support in Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "Token format: 'Bearer <your-token>'",
+        Description = "JWT Authorization header using Bearer scheme. Example: 'Bearer {token}'",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
@@ -54,39 +66,36 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// JWT Authentication Setup
+// 5. JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var secretKey = jwtSettings["SecretKey"] ?? throw new ArgumentNullException("JWT Secret Key is missing");
+var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT Secret Key is missing");
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
-    };
-});
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+        };
+    });
 
-// Database Configuration
+// 6. Database Configuration
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
         b => b.MigrationsAssembly("FunDooNotesC_.DataLayer")
     ));
 
+/***************************** App Building *****************************/
 var app = builder.Build();
 
-// Middleware Pipeline
+// Middleware Order (Bilkul Sahi Hai!)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -94,7 +103,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseAuthentication(); // 
+app.UseAuthorization();  // 
 app.MapControllers();
+
 app.Run();

@@ -20,6 +20,10 @@
 		<!-- Yeh JWT (JSON Web Token) authentication ke liye package add karta hai, jo authentication aur authorization ke liye use hota hai -->
 
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
+
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
+
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0" />
 		<!-- Yeh Entity Framework Core ka package add karta hai jo database ke saath kaam karne ke liye use hota hai -->
 
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.34.0" />

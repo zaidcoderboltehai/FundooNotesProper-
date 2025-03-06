@@ -24,6 +24,10 @@
 		<!-- Ye line user authentication aur authorization ke liye ASP.NET Identity package ko add karti hai. -->
 
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
+
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
+
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0" />
 		<!-- Ye line Entity Framework Core package ko add karti hai, jo database se interact karne ke liye use hota hai. -->
 
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.34.0" />

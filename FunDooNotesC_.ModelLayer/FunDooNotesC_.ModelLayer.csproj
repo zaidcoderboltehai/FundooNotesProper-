@@ -17,6 +17,10 @@
 		<!-- Yeh package JWT Bearer authentication handle karne ke liye hai, jo authentication tokens ke liye use hota hai -->
 
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
+
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
+
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0" />
 		<!-- Entity Framework Core ka package jo database se interact karne me madad karta hai -->
 
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.34.0" />

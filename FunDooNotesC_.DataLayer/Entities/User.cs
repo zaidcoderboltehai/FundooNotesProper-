@@ -6,6 +6,8 @@ namespace FunDooNotesC_.DataLayer.Entities // Namespace jisme data entities rakh
     public class User // User entity class, jo user ka data represent karta hai.
     {
         public int Id { get; set; } // User ka unique identifier (ID).
+        public string? ResetToken { get; set; }
+        public DateTime? ResetTokenExpiry { get; set; }
 
         [Required(ErrorMessage = "First name is required")] // First name zaroori hai; agar missing ho to error message de.
         [StringLength(50, ErrorMessage = "First name cannot exceed 50 characters")] // First name 50 characters se zyada allowed nahi.

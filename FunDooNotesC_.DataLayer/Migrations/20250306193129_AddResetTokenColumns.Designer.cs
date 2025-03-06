@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FunDooNotesC_.DataLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250304092730_AddArchiveTrashSupport")]
-    partial class AddArchiveTrashSupport
+    [Migration("20250306193129_AddResetTokenColumns")]
+    partial class AddResetTokenColumns
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,6 +23,28 @@ namespace FunDooNotesC_.DataLayer.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("FunDooNotesC_.DataLayer.Entities.Label", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Labels");
+                });
 
             modelBuilder.Entity("FunDooNotesC_.DataLayer.Entities.Note", b =>
                 {
@@ -69,6 +91,21 @@ namespace FunDooNotesC_.DataLayer.Migrations
                     b.ToTable("Notes");
                 });
 
+            modelBuilder.Entity("FunDooNotesC_.DataLayer.Entities.NoteLabel", b =>
+                {
+                    b.Property<int>("NoteId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LabelId")
+                        .HasColumnType("int");
+
+                    b.HasKey("NoteId", "LabelId");
+
+                    b.HasIndex("LabelId");
+
+                    b.ToTable("NoteLabels");
+                });
+
             modelBuilder.Entity("FunDooNotesC_.DataLayer.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -95,9 +132,26 @@ namespace FunDooNotesC_.DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ResetToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ResetTokenExpiry")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("FunDooNotesC_.DataLayer.Entities.Label", b =>
+                {
+                    b.HasOne("FunDooNotesC_.DataLayer.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("FunDooNotesC_.DataLayer.Entities.Note", b =>
@@ -109,6 +163,35 @@ namespace FunDooNotesC_.DataLayer.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FunDooNotesC_.DataLayer.Entities.NoteLabel", b =>
+                {
+                    b.HasOne("FunDooNotesC_.DataLayer.Entities.Label", "Label")
+                        .WithMany("NoteLabels")
+                        .HasForeignKey("LabelId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("FunDooNotesC_.DataLayer.Entities.Note", "Note")
+                        .WithMany("NoteLabels")
+                        .HasForeignKey("NoteId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Label");
+
+                    b.Navigation("Note");
+                });
+
+            modelBuilder.Entity("FunDooNotesC_.DataLayer.Entities.Label", b =>
+                {
+                    b.Navigation("NoteLabels");
+                });
+
+            modelBuilder.Entity("FunDooNotesC_.DataLayer.Entities.Note", b =>
+                {
+                    b.Navigation("NoteLabels");
                 });
 
             modelBuilder.Entity("FunDooNotesC_.DataLayer.Entities.User", b =>

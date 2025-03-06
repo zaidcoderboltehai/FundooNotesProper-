@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FunDooNotesC_.DataLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250305151732_AddNoteLabelRelationship")]
-    partial class AddNoteLabelRelationship
+    [Migration("20250306192937_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -132,6 +132,12 @@ namespace FunDooNotesC_.DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ResetToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ResetTokenExpiry")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.ToTable("Users");
@@ -164,13 +170,13 @@ namespace FunDooNotesC_.DataLayer.Migrations
                     b.HasOne("FunDooNotesC_.DataLayer.Entities.Label", "Label")
                         .WithMany("NoteLabels")
                         .HasForeignKey("LabelId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("FunDooNotesC_.DataLayer.Entities.Note", "Note")
                         .WithMany("NoteLabels")
                         .HasForeignKey("NoteId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Label");

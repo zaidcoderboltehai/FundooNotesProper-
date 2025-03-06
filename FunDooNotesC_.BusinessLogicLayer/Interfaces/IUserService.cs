@@ -31,5 +31,8 @@ namespace FunDooNotesC_.BusinessLogicLayer.Interfaces // Business logic layer ke
         // Ye method user ki details ko uske `id` ke basis par fetch karta hai.
         // `id` input mein leta hai aur agar user milta hai, toh `User` object return karta hai, nahi toh `null`.
         // `Task<User?>` ka matlab hai ki yeh method async hai aur ek `User` object ya `null` return karega.
+
+        Task ForgotPassword(string email);
+        Task<bool> ResetPassword(string email, string token, string newPassword);
     }
 }

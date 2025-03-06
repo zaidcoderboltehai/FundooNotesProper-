@@ -4,7 +4,7 @@
 
 namespace FunDooNotesC_.DataLayer.Migrations
 {
-    public partial class UpdateSchema : Migration
+    public partial class AddResetTokenColumns : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

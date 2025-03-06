@@ -53,6 +53,10 @@
 		<!-- Package reference for EF Core, version 6.0.0 -->
 
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0" />
+
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
+
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0" />
 		<!-- Package reference for EF Core SQL Server provider, version 6.0.0 -->
 
 		<!-- Security token handling -->
@@ -76,6 +80,10 @@
 	  <None Update="appsettings.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Migrations\" />
 	</ItemGroup>
 	<!-- Dusra ItemGroup block end -->
 
