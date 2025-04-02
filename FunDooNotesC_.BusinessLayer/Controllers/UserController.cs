@@ -44,7 +44,10 @@ namespace FunDooNotesC_.BusinessLayer.Controllers
                 {
                     FirstName = request.FirstName,
                     LastName = request.LastName,
-                    Email = request.Email
+                    Email = request.Email,
+                    // New fields
+                    Birthday = request.Birthday,
+                    Gender = request.Gender
                 };
 
                 var registeredUser = await _userService.RegisterAsync(user, request.Password);
@@ -185,7 +188,7 @@ namespace FunDooNotesC_.BusinessLayer.Controllers
             return tokenHandler.WriteToken(token);
         }
 
-        // Request Models
+        // ------------------------ Request Models ------------------------
         public class ForgotPasswordRequest
         {
             [Required(ErrorMessage = "Email is required")]
@@ -205,6 +208,34 @@ namespace FunDooNotesC_.BusinessLayer.Controllers
             [Required(ErrorMessage = "New password is required")]
             [MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
             public string NewPassword { get; set; }
+        }
+
+        // ------------------------ UPDATED RegisterModel ------------------------
+        public class RegisterModel
+        {
+            // Existing properties (e.g. FirstName, LastName, Email, Password)
+            [Required(ErrorMessage = "First name is required")]
+            public string FirstName { get; set; }
+
+            [Required(ErrorMessage = "Last name is required")]
+            public string LastName { get; set; }
+
+            [Required(ErrorMessage = "Email is required")]
+            [EmailAddress(ErrorMessage = "Invalid email format")]
+            public string Email { get; set; }
+
+            [Required(ErrorMessage = "Password is required")]
+            [MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
+            public string Password { get; set; }
+
+            // New fields
+            [Required(ErrorMessage = "Birthday is required")]
+            [DataType(DataType.Date)]
+            public DateTime Birthday { get; set; }
+
+            [Required(ErrorMessage = "Gender is required")]
+            [StringLength(10)]
+            public string Gender { get; set; } // Male/Female/Other
         }
     }
 }

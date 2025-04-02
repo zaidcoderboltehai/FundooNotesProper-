@@ -11,7 +11,7 @@ namespace FunDooNotesC_.BusinessLayer.Controllers
 {
     [ApiController]
     [Route("api/notes")]
-    [Authorize]
+    [Authorize] // Ensure this is present
     public class NotesController : ControllerBase
     {
         private readonly INoteService _noteService;
@@ -27,6 +27,22 @@ namespace FunDooNotesC_.BusinessLayer.Controllers
             _noteService = noteService;
             _labelService = labelService;
             _logger = logger;
+        }
+
+        // ------------------------ GET USER NOTES ------------------------
+        [HttpGet]
+        public async Task<IActionResult> GetUserNotes()
+        {
+            try
+            {
+                var notes = await _noteService.GetUserNotesAsync(GetCurrentUserId());
+                return Ok(notes);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching notes");
+                return BadRequest(new { error = "Failed to get notes" });
+            }
         }
 
         // ------------------------ CREATE NOTE ------------------------

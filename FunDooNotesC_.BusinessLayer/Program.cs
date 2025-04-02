@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using FunDooNotesC_.DataLayer.Entities;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +23,12 @@ builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 
 // 3. Register Repositories and Services
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserRepository>(provider =>
+    new UserRepository(
+        provider.GetRequiredService<ApplicationDbContext>(),
+        provider.GetRequiredService<IConnectionMultiplexer>()
+    ));
+
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRepository<Note>, Repository<Note>>();
 builder.Services.AddScoped<IRepository<NoteLabel>, Repository<NoteLabel>>();
@@ -30,7 +36,7 @@ builder.Services.AddScoped<INoteService, NoteService>();
 builder.Services.AddScoped<ILabelRepository, LabelRepository>();
 builder.Services.AddScoped<ILabelService, LabelService>();
 
-// 4. Swagger Configuration (JWT ke saath)
+// 4. Swagger Configuration (with JWT)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -85,17 +91,44 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// 6. Database Configuration
+// 6. Database Configuration (Updated)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        b => b.MigrationsAssembly("FunDooNotesC_.DataLayer")
+        b =>
+        {
+            b.MigrationsAssembly("FunDooNotesC_.DataLayer");
+            b.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null
+            );
+        }
     ));
+
+// 7. Redis Configuration
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect(
+        builder.Configuration.GetConnectionString("Redis")
+    ));
+
+// 8. CORS Configuration (Allow Angular app)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        });
+});
 
 /***************************** App Building *****************************/
 var app = builder.Build();
 
-// Middleware Order (Bilkul Sahi Hai!)
+// Middleware Order
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -103,8 +136,18 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthentication(); // 
-app.UseAuthorization();  // 
+
+// Fix: Move UseRouting before authentication and authorization
+app.UseRouting();
+
+// CORS must come after Routing but before Authentication
+app.UseCors("AllowAngularApp");
+
+// Authentication must come before Authorization
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Finally, map endpoints
 app.MapControllers();
 
 app.Run();

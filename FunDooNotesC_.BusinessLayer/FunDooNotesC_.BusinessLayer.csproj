@@ -69,10 +69,10 @@
 		<ProjectReference Include="..\FunDooNotesC_.BusinessLogicLayer\FunDooNotesC_.BusinessLogicLayer.csproj" />
 
 		<ProjectReference Include="..\FunDooNotesC_.DataLayer\FunDooNotesC_.DataLayer.csproj" />
-		<!-- Ye line Data Layer project ko reference karti hai. 
-         Data Layer database interactions ko handle karta hai. -->
 
 		<ProjectReference Include="..\FunDooNotesC_.ModelLayer\FunDooNotesC_.ModelLayer.csproj" />
+		<!-- Ye line Data Layer project ko reference karti hai. 
+         Data Layer database interactions ko handle karta hai. -->
 		<!-- Ye line Model Layer project ko reference karti hai. 
          Model Layer mein data models (jaise User, Note) define hote hain. -->
 

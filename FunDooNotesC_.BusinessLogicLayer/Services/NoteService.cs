@@ -1,6 +1,7 @@
 ﻿using FunDooNotesC_.BusinessLogicLayer.Interfaces;
 using FunDooNotesC_.DataLayer.Entities;
 using FunDooNotesC_.RepoLayer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ namespace FunDooNotesC_.BusinessLogicLayer.Services
 
         public async Task<IEnumerable<Note>> GetUserNotesAsync(int userId)
         {
+            // Fetch all notes for a specific user (excluding archived and trashed notes)
             return await _noteRepository.GetAllAsync(n =>
                 n.UserId == userId &&
                 !n.IsArchived &&

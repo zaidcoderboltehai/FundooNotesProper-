@@ -56,9 +56,9 @@ namespace FunDooNotesC_.BusinessLogicLayer.Services
                 }
 
                 bool isValid = PasswordHelper.VerifyPassword(user, password);
-                _logger.LogInformation(isValid ?
-                    $"Successful login for {email}" :
-                    $"Invalid password attempt for {email}");
+                _logger.LogInformation(isValid
+                    ? $"Successful login for {email}"
+                    : $"Invalid password attempt for {email}");
 
                 return isValid ? user : null;
             }
@@ -87,6 +87,7 @@ namespace FunDooNotesC_.BusinessLogicLayer.Services
             }
         }
 
+        // --- ForgotPassword with snippet line added ---
         public async Task ForgotPassword(string email)
         {
             try
@@ -101,6 +102,9 @@ namespace FunDooNotesC_.BusinessLogicLayer.Services
                 user.ResetToken = Guid.NewGuid().ToString();
                 user.ResetTokenExpiry = DateTime.UtcNow.AddHours(1);
                 await _userRepository.UpdateAsync(user);
+
+                // Snippet: Print token to console (dev purpose)
+                Console.WriteLine($"Password Reset Token for {email}: {user.ResetToken}");
 
                 _logger.LogInformation($"Password reset token generated for {email}");
                 // TODO: Add email sending logic here
